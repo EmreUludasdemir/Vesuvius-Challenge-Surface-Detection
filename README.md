@@ -1,1 +1,1 @@
-# Vesuvius-Challenge-Surface-Detection-yar-mas-
+# Vesuvius-Challenge-Surface-Detection
