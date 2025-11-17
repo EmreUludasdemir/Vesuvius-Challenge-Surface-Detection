@@ -1,0 +1,30 @@
+# Low Memory Configuration (16GB GPU)
+# Optimized for T4, RTX 3070, etc.
+
+# Inherit from default and override specific settings
+defaults:
+  - default_config
+
+# Model configuration - Smaller model
+model:
+  type: "unet3d_depth_invariant"
+  in_channels: 65
+  out_channels: 1
+  base_features: 16  # Reduced from 32
+  depth: 3  # Reduced from 4
+
+# Training configuration - Memory optimized
+training:
+  batch_size: 2  # Reduced from 4
+  num_epochs: 150  # Train longer with smaller batches
+  gradient_accumulation_steps: 2  # Effective batch size = 4
+  use_amp: true  # Essential for memory savings
+
+# Data configuration - Smaller patches
+data:
+  patch_size: 128  # Reduced from 256
+  stride: 64
+
+# Inference configuration
+inference:
+  batch_size: 4  # Lower batch size

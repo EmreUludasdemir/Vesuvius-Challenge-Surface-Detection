@@ -1,0 +1,112 @@
+# Default Configuration for Surface Detection Training
+
+# Data configuration
+data:
+  data_root: "data/raw"
+  fragment_ids:
+    - "fragment_1"
+    - "fragment_2"
+  num_slices: 65
+  patch_size: 256
+  stride: 128  # For patch extraction
+  balanced_sampling: true
+  surface_ratio: 0.5  # Ratio of surface patches
+
+# Model configuration
+model:
+  type: "unet3d_depth_invariant"  # Options: unet3d, unet3d_depth_invariant
+  in_channels: 65  # Number of depth slices
+  out_channels: 1  # Binary segmentation
+  base_features: 32
+  depth: 4  # Number of downsampling levels
+
+# Training configuration
+training:
+  # Basic settings
+  num_epochs: 100
+  batch_size: 4  # Adjust based on GPU memory
+  num_workers: 4
+  pin_memory: true
+
+  # Optimization
+  optimizer: "adamw"
+  learning_rate: 1.0e-4
+  weight_decay: 1.0e-5
+
+  # Loss function
+  loss:
+    type: "combined"  # Options: bce, dice, combined, focal, tversky
+    bce_weight: 0.5
+    dice_weight: 0.5
+    label_smoothing: 0.1
+
+  # Learning rate scheduling
+  scheduler:
+    type: "cosine"  # Options: cosine, step, plateau
+    warmup_epochs: 5
+    min_lr: 1.0e-6
+
+  # Mixed precision
+  use_amp: true
+
+  # Cross-validation
+  n_folds: 5
+  fold: 0  # Which fold to train on
+
+# Augmentation configuration
+augmentation:
+  # Z-translation (CRITICAL - most important augmentation)
+  z_translation:
+    enabled: true
+    max_shift: 5
+    prob: 0.5
+
+  # 2D augmentations
+  use_heavy_augs: true
+  horizontal_flip: 0.5
+  vertical_flip: 0.5
+  rotate90: 0.5
+  shift_scale_rotate: 0.5
+  brightness_contrast: 0.5
+  gaussian_noise: 0.3
+  gaussian_blur: 0.3
+  coarse_dropout: 0.5
+  elastic_transform: 0.3
+
+# Validation configuration
+validation:
+  val_split: 0.2
+  val_every: 1  # Validate every N epochs
+  save_every: 5  # Save checkpoint every N epochs
+
+# Inference configuration
+inference:
+  batch_size: 8
+  threshold: 0.96  # Probability threshold for surface detection
+  use_gaussian_weighting: true
+  use_tta: false  # Test-time augmentation
+
+# Paths
+paths:
+  checkpoint_dir: "checkpoints"
+  output_dir: "outputs"
+  log_dir: "logs"
+
+# Logging
+logging:
+  use_wandb: false
+  wandb_project: "vesuvius-surface-detection"
+  wandb_entity: null
+  log_interval: 10  # Log every N batches
+
+# Hardware
+hardware:
+  device: "cuda"  # Options: cuda, cpu
+  gpu_id: 0
+  seed: 42
+
+# Post-processing
+postprocessing:
+  morphology_radius: 2
+  min_component_size: 100
+  edge_masking_size: 16  # Remove predictions near tile edges
