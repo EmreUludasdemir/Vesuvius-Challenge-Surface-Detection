@@ -1,0 +1,31 @@
+# High Performance Configuration (40GB+ GPU)
+# Optimized for A6000, A100, etc.
+
+# Inherit from default and override specific settings
+defaults:
+  - default_config
+
+# Model configuration - Larger model
+model:
+  type: "unet3d_depth_invariant"
+  in_channels: 65
+  out_channels: 1
+  base_features: 64  # Increased from 32
+  depth: 5  # Increased from 4
+
+# Training configuration - Performance optimized
+training:
+  batch_size: 16  # Increased from 4
+  num_epochs: 100
+  num_workers: 8
+  use_amp: true
+
+# Data configuration - Larger patches
+data:
+  patch_size: 512  # Increased from 256
+  stride: 256
+
+# Inference configuration
+inference:
+  batch_size: 32  # Higher batch size
+  use_tta: true  # Enable test-time augmentation
